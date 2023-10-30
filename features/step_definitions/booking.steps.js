@@ -64,17 +64,29 @@ Then("user sees the header {string}", async function (string) {
   expect(actual).contains(expected);
 });
 
-Then(
-  "user sees {string} is gray",
-  {
-    timeout: 60 * 1000,
-  },
-  async function (string) {
-    await clickElement(this.page, string);
-    await this.page.waitForNavigation(30000);
-    const isDisabled = await page.$eval("button", (button) => button.disabled);
-    await this.page.waitForNavigation(30000);
-
-    await expect(isDisabled).to.equal(true);
+When("the current time is later than {int} AM", async function (int) {
+  if (now.getHours() > int) {
+    await chooseDay(this.page, ".page-nav__day-number", today);
   }
-);
+});
+
+Then('the {string} class should contain elements', async function (string) {
+  const elements = await this.page.$$(string);
+  expect(elements.length).to.be.greaterThan(0);
+});
+
+When("if the current time is later than {int} AM and earlier than 23 AM", async function (int) {
+  if (now.getHours() > int && now.getHours() < 23) {
+    await chooseDay(this.page, ".page-nav__day-number", tomorrow);
+  }
+});
+
+Then("user sees {string} is gray", {
+  timeout: 60 * 1000
+}, async function (string) {
+
+  await this.page.waitForNavigation(30000);
+  const isDisabled = await this.page.$eval(string, (button) => button.disabled);
+
+  await expect(isDisabled).to.equal(true);
+});
